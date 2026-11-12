@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExpensePulse | Java OOP Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js 4.4 from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="brand-section">
+        <div class="brand-logo-icon">☕</div>
+        <div>
+          <div class="brand-title">ExpensePulse</div>
+        </div>
+        <span class="brand-badge">Java 17</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" id="nav-dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" id="nav-transactions">
+          <span class="nav-icon">💳</span>
+          <span>Transactions</span>
+        </a>
+        <a class="nav-item" id="nav-reports">
+          <span class="nav-icon">📈</span>
+          <span>Reports & Analytics</span>
+        </a>
+        <a class="nav-item" id="nav-settings">
+          <span class="nav-icon">⚙️</span>
+          <span>Budgets & Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="oop-callout-pill">
+          <strong>100% Client-Side Java</strong><br>
+          TeaVM JSO • No Backend • LocalStorage
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Topbar Header -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <span class="page-greeting">Financial Overview</span>
+          <span class="date-pill" id="current-date-badge">Today: Nov 12, 2026</span>
+        </div>
+        <div class="topbar-right">
+          <button class="btn-icon" id="btn-theme-toggle" title="Toggle Light/Dark Theme">🌙</button>
+          <button class="btn btn-primary" id="btn-quick-add">
+            <span>➕</span>
+            <span>New Transaction</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Body -->
+      <div class="page-body">
+
+        <!-- ==========================================
+             TAB 1: DASHBOARD
+             ========================================== -->
+        <section id="tab-dashboard">
+          <!-- 4 Stat Summary Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-label">Total Balance</span>
+                <div class="stat-icon-wrap icon-blue">💼</div>
+              </div>
+              <div class="stat-value" id="card-balance-val">$0.00</div>
+              <div class="stat-footer">
+                <span id="card-balance-badge" class="badge badge-success">Surplus</span>
+                <span>Lifetime net</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-label">Total Income</span>
+                <div class="stat-icon-wrap icon-green">🟢</div>
+              </div>
+              <div class="stat-value text-income" id="card-income-val">$0.00</div>
+              <div class="stat-footer">
+                <span class="badge badge-income">Inflow</span>
+                <span>Cumulative earnings</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-label">Total Expenses</span>
+                <div class="stat-icon-wrap icon-red">🔴</div>
+              </div>
+              <div class="stat-value text-expense" id="card-expense-val">$0.00</div>
+              <div class="stat-footer">
+                <span class="badge badge-expense">Outflow</span>
+                <span>Cumulative spending</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-label">This Month Spending</span>
+                <div class="stat-icon-wrap icon-orange">📅</div>
+              </div>
+              <div class="stat-value" id="card-month-expense-val">$0.00</div>
+              <div class="stat-footer">
+                <span class="badge badge-secondary">Nov 2026</span>
+                <span>Current period</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 Columns: Recent Transactions + Category Budgets -->
+          <div class="dashboard-columns">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Recent Transactions</h3>
+                <button class="btn btn-sm btn-outline" onclick="window.switchTab('transactions')">View All</button>
+              </div>
+              <div class="recent-tx-list" id="dashboard-recent-transactions">
+                <!-- Injected by Java UI -->
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3 class="panel-title">Monthly Category Budgets</h3>
+                <button class="btn btn-sm btn-outline" onclick="window.switchTab('settings')">Manage</button>
+              </div>
+              <div class="budgets-list" id="dashboard-budgets-list">
+                <!-- Injected by Java UI -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: TRANSACTIONS
+             ========================================== -->
+        <section id="tab-transactions" style="display: none;">
+          <!-- Filter Toolbar -->
+          <div class="filter-toolbar">
+            <div class="filter-top-row">
+              <div class="search-input-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="filter-search" class="form-control form-control-search" placeholder="Search by description, category, amount, or date...">
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary" id="btn-open-modal">➕ Add Transaction</button>
+                <button class="btn btn-outline" id="btn-export-csv">📥 Export CSV</button>
+                <button class="btn btn-outline" onclick="document.getElementById('csv-file-input').click()">📤 Import CSV</button>
+                <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+              </div>
+            </div>
+
+            <div class="filter-bottom-row">
+              <div>
+                <select id="filter-type" class="form-control form-control-sm">
+                  <option value="ALL">All Types</option>
+                  <option value="INCOME">Income Only</option>
+                  <option value="EXPENSE">Expense Only</option>
+                </select>
+              </div>
+
+              <div>
+                <select id="filter-category" class="form-control form-control-sm">
+                  <option value="ALL">All Categories</option>
+                  <!-- Populated by Java UI -->
+                </select>
+              </div>
+
+              <div>
+                <input type="date" id="filter-from-date" class="form-control form-control-sm" title="From Date">
+              </div>
+
+              <div>
+                <input type="date" id="filter-to-date" class="form-control form-control-sm" title="To Date">
+              </div>
+
+              <div>
+                <select id="filter-sort-by" class="form-control form-control-sm">
+                  <option value="date-desc">Date (Newest First)</option>
+                  <option value="date-asc">Date (Oldest First)</option>
+                  <option value="amount-desc">Amount (Highest First)</option>
+                  <option value="amount-asc">Amount (Lowest First)</option>
+                </select>
+              </div>
+
+              <div>
+                <button class="btn btn-sm btn-outline" id="btn-reset-filters">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transactions Table -->
+          <div class="table-responsive">
+            <div style="padding: 14px 18px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; font-size: 0.95rem;">Transaction Ledger</span>
+              <span id="tx-count-badge" class="badge badge-secondary">0 records</span>
+            </div>
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Description / Note</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="transactions-tbody">
+                <!-- Rows injected by Java UI -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: REPORTS & ANALYTICS
+             ========================================== -->
+        <section id="tab-reports" style="display: none;">
+          <!-- KPI Summary Cards -->
+          <div class="reports-kpi-grid">
+            <div class="stat-card">
+              <span class="stat-label">Savings Rate</span>
+              <div class="stat-value text-income" id="report-savings-rate">0.0%</div>
+              <div class="stat-footer">
+                <span>Income retained as savings</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <span class="stat-label">Net Accumulated Savings</span>
+              <div class="stat-value" id="report-net-savings">$0.00</div>
+              <div class="stat-footer">
+                <span>Total Income - Total Expenses</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <span class="stat-label">Highest Spending Month</span>
+              <div class="stat-value text-expense" id="report-highest-month">N/A</div>
+              <div class="stat-footer">
+                <span>Peak outflow period</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <span class="stat-label">Average Monthly Expense</span>
+              <div class="stat-value" id="report-avg-expense">$0.00</div>
+              <div class="stat-footer">
+                <span>Across recorded months</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top 3 Spending Categories -->
+          <div style="margin-bottom: 24px;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">Top Spending Categories Insight</h3>
+            <div class="top-cats-grid" id="report-top-categories-list">
+              <!-- Injected by Java UI -->
+            </div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="report-charts-grid">
+            <!-- Monthly Bar Chart -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4 class="chart-title">Monthly Income vs. Expense</h4>
+                <p class="chart-desc">Side-by-side comparison of cash inflow and outflow per month</p>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-monthly-bar"></canvas>
+              </div>
+            </div>
+
+            <!-- Category Breakdown Doughnut -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4 class="chart-title">Category Breakdown</h4>
+                <p class="chart-desc">Proportional expense distribution across categories</p>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-category-doughnut"></canvas>
+              </div>
+            </div>
+
+            <!-- Spending Trend Line Chart -->
+            <div class="chart-card report-full-chart">
+              <div class="chart-header">
+                <h4 class="chart-title">Spending Trend Over Time</h4>
+                <p class="chart-desc">Chronological expense progression tracking spending spikes and trends</p>
+              </div>
+              <div class="chart-container" style="height: 280px;">
+                <canvas id="chart-spending-trend"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Breakdown & Budget Compliance Table -->
+          <div class="table-responsive" style="margin-top: 24px;">
+            <div style="padding: 14px 18px; border-bottom: 1px solid var(--border-color);">
+              <h4 style="font-size: 0.95rem; font-weight: 700;">Category Expense & Budget Performance</h4>
+            </div>
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Total Spent</th>
+                  <th>% of Expenses</th>
+                  <th>Monthly Budget Limit</th>
+                  <th>Compliance Status</th>
+                </tr>
+              </thead>
+              <tbody id="report-category-tbody">
+                <!-- Injected by Java UI -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: BUDGETS & SETTINGS
+             ========================================== -->
+        <section id="tab-settings" style="display: none;">
+          <!-- Category Budget Limits -->
+          <div class="settings-section-card">
+            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 8px;">Monthly Category Budget Limits</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+              Set spending limits per category. When spending exceeds this limit in the dashboard or reports, a visual warning will appear.
+            </p>
+            <div id="settings-budgets-container">
+              <!-- Injected by Java UI -->
+            </div>
+          </div>
+
+          <!-- Data Management & Backups -->
+          <div class="settings-section-card">
+            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 8px;">Data Storage & Backup (Browser LocalStorage)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+              All data is stored directly in your browser's persistent localStorage with zero backend server dependency.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button class="btn btn-outline" id="btn-export-csv-settings">📥 Export All to CSV</button>
+              <button class="btn btn-outline" onclick="document.getElementById('csv-file-input').click()">📤 Import from CSV</button>
+              <button class="btn btn-outline" id="btn-load-sample-data">🔄 Reset Sample Data</button>
+              <button class="btn btn-danger" id="btn-clear-all-data">⚠️ Clear All Data</button>
+            </div>
+          </div>
+
+          <!-- OOP Architecture Viva Reference Card -->
+          <div class="settings-section-card">
+            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 8px;">🎓 Object-Oriented Programming (OOP) Architecture</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+              Key OOP design patterns and concepts implemented in Java 17 for this project:
+            </p>
+            <div class="oop-cards-grid">
+              <div class="oop-concept-card">
+                <div class="oop-concept-title">1. Abstraction</div>
+                <div class="oop-concept-desc">
+                  <code>Transaction</code> is an abstract base class defining core fields and abstract methods <code>getSignedAmount()</code> and <code>getType()</code>. It cannot be instantiated directly.
+                </div>
+              </div>
+
+              <div class="oop-concept-card">
+                <div class="oop-concept-title">2. Inheritance</div>
+                <div class="oop-concept-desc">
+                  <code>Income</code> and <code>Expense</code> inherit all common transaction state (id, amount, date, description, category) from <code>Transaction</code>, avoiding code duplication.
+                </div>
+              </div>
+
+              <div class="oop-concept-card">
+                <div class="oop-concept-title">3. Polymorphism</div>
+                <div class="oop-concept-desc">
+                  <code>Income</code> overrides <code>getSignedAmount()</code> to return <code>+amount</code>; <code>Expense</code> returns <code>-amount</code>. <code>Account.calculateBalance()</code> evaluates signed amounts polymorphically.
+                </div>
+              </div>
+
+              <div class="oop-concept-card">
+                <div class="oop-concept-title">4. Encapsulation</div>
+                <div class="oop-concept-desc">
+                  <code>Account</code> and <code>Transaction</code> protect internal lists and fields with private access and return <code>Collections.unmodifiableList</code>, validating amounts against <code>InvalidAmountException</code>.
+                </div>
+              </div>
+
+              <div class="oop-concept-card">
+                <div class="oop-concept-title">5. Interfaces & Strategy</div>
+                <div class="oop-concept-desc">
+                  <code>StorageService</code> (implemented by <code>LocalStorageService</code>) and <code>ReportGenerator&lt;T&gt;</code> (implemented by <code>MonthlyReport</code>, <code>CategoryReport</code>, <code>IncomeVsExpenseReport</code>) decouple implementations via contracts.
+                </div>
+              </div>
+
+              <div class="oop-concept-card">
+                <div class="oop-concept-title">6. Exception Hierarchy</div>
+                <div class="oop-concept-desc">
+                  Custom domain exceptions (<code>InvalidAmountException</code>, <code>TransactionNotFoundException</code>, <code>ValidationException</code>) extend <code>ExpenseTrackerException</code> for graceful error recovery.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================
+       TRANSACTION MODAL DIALOG
+       ========================================== -->
+  <div class="modal-overlay" id="transaction-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add New Transaction</h3>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-error-message" class="modal-error"></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="modal-type">Type</label>
+            <select id="modal-type" class="form-control">
+              <option value="EXPENSE">Expense 🔴</option>
+              <option value="INCOME">Income 🟢</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-amount">Amount ($)</label>
+            <input type="number" id="modal-amount" class="form-control" placeholder="0.00" min="0.01" step="0.01" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="modal-date">Date</label>
+            <input type="date" id="modal-date" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="modal-category">Category</label>
+            <select id="modal-category" class="form-control">
+              <!-- Populated by Java UI -->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="modal-description">Description / Note</label>
+          <input type="text" id="modal-description" class="form-control" placeholder="e.g. Grocery shopping, Salary payment" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-cancel-modal">Cancel</button>
+        <button class="btn btn-primary" id="form-transaction-save">Save Transaction</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- ==========================================
+       Chart.js & Browser Interop Bridge
+       ========================================== -->
+  <script>
+    // Global bridge objects invoked by Java TeaVM
+    window.chartInstances = {};
+
+    window.ExpenseTrackerCharts = {
+      renderMonthlyBarChart: function(canvasId, months, income, expense) {
+        var ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        if (window.chartInstances[canvasId]) {
+          window.chartInstances[canvasId].destroy();
+        }
+
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var textColor = isDark ? '#94a3b8' : '#64748b';
+        var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+
+        window.chartInstances[canvasId] = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: months,
+            datasets: [
+              {
+                label: 'Income',
+                data: income,
+                backgroundColor: '#10b981',
+                borderRadius: 6
+              },
+              {
+                label: 'Expense',
+                data: expense,
+                backgroundColor: '#ef4444',
+                borderRadius: 6
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: textColor, font: { family: 'Inter', weight: 600 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(c) { return c.dataset.label + ': $' + Number(c.raw).toFixed(2); }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: gridColor },
+                ticks: { color: textColor, font: { family: 'Inter' } }
+              },
+              y: {
+                grid: { color: gridColor },
+                ticks: {
+                  color: textColor,
+                  font: { family: 'Inter' },
+                  callback: function(v) { return '$' + v; }
+                }
+              }
+            }
+          }
+        });
+      },
+
+      renderCategoryDoughnut: function(canvasId, labels, amounts, colors) {
+        var ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        if (window.chartInstances[canvasId]) {
+          window.chartInstances[canvasId].destroy();
+        }
+
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var textColor = isDark ? '#94a3b8' : '#64748b';
+
+        window.chartInstances[canvasId] = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: amounts,
+              backgroundColor: colors,
+              borderWidth: 2,
+              borderColor: isDark ? '#1e293b' : '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: { color: textColor, font: { family: 'Inter', size: 11, weight: 500 }, boxWidth: 14 }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(c) {
+                    var total = c.dataset.data.reduce(function(a, b){ return a + b; }, 0);
+                    var val = Number(c.raw);
+                    var pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
+                    return c.label + ': $' + val.toFixed(2) + ' (' + pct + '%)';
+                  }
+                }
+              }
+            },
+            cutout: '65%'
+          }
+        });
+      },
+
+      renderTrendLineChart: function(canvasId, dates, amounts) {
+        var ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        if (window.chartInstances[canvasId]) {
+          window.chartInstances[canvasId].destroy();
+        }
+
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var textColor = isDark ? '#94a3b8' : '#64748b';
+        var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+
+        window.chartInstances[canvasId] = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: dates,
+            datasets: [{
+              label: 'Daily Outflow',
+              data: amounts,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99, 102, 241, 0.15)',
+              tension: 0.35,
+              fill: true,
+              pointRadius: 4,
+              pointBackgroundColor: '#6366f1'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: textColor, font: { family: 'Inter', weight: 600 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(c) { return 'Outflow: $' + Number(c.raw).toFixed(2); }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: gridColor },
+                ticks: { color: textColor, font: { family: 'Inter', size: 11 } }
+              },
+              y: {
+                grid: { color: gridColor },
+                ticks: {
+                  color: textColor,
+                  font: { family: 'Inter' },
+                  callback: function(v) { return '$' + v; }
+                }
+              }
+            }
+          }
+        });
+      }
+    };
+
+    window.ExpenseTrackerBridge = {
+      downloadFile: function(filename, content) {
+        var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      },
+
+      showToast: function(message, type) {
+        var container = document.getElementById('toast-container');
+        if (!container) return;
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + (type || 'info');
+        var icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : (type === 'warning' ? '⚠️' : 'ℹ️'));
+        toast.innerHTML = '<span>' + icon + '</span><span>' + message + '</span>';
+        container.appendChild(toast);
+        setTimeout(function() {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.3s ease';
+          setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+        }, 3200);
+      },
+
+      applyTheme: function(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        var btn = document.getElementById('btn-theme-toggle');
+        if (btn) {
+          btn.innerHTML = (theme === 'dark') ? '☀️' : '🌙';
+        }
+      }
+    };
+
+    // CSV File Reader Listener
+    document.addEventListener('DOMContentLoaded', function() {
+      var fileInput = document.getElementById('csv-file-input');
+      if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+          var file = e.target.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function(evt) {
+            var content = evt.target.result;
+            if (window.onCsvImported) {
+              window.onCsvImported(content);
+            }
+            fileInput.value = ''; // Reset input
+          };
+          reader.readAsText(file);
+        });
+      }
+    });
+  </script>
+
+  <!-- Compiled TeaVM JavaScript Output -->
+  <script src="js/app.js"></script>
+  <script>
+    if (typeof main === 'function') {
+      main();
+    } else {
+      window.addEventListener('DOMContentLoaded', function() {
+        if (typeof main === 'function') main();
+      });
+    }
+  </script>
+</body>
+</html>
+

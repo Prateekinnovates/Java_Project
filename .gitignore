@@ -1,0 +1,23 @@
+# Maven build output
+target/
+
+# Local portable JDK and Maven
+.tools/
+
+# Node modules & test artifacts
+node_modules/
+package-lock.json
+package.json
+test-artifacts/
+
+# IDE configurations
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Logs
+*.log
+
